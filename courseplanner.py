@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 import json
+import os
 
 class Course:
     def __init__(self, name, c_id, hp, block, level, link, termin="",period=""):
@@ -65,6 +66,23 @@ class Calendar:
                 occasion = self.calendar[int(course.termin[7]) - 1][course.period - 1][int(block) -1]
                 if course in occasion:
                     occasion.remove(course)
+
+    def total_hp(self):
+        hp = 0
+        long_courses = []
+        for i in range(6,9):
+            for j in range(2):
+                for k in range(4):
+                    if self.calendar[i][j][k] != []:
+                        for c in self.calendar[i][j][k]:
+                            if c.hp.endswith("*"):
+                                if not (c.id in long_courses):
+                                    long_courses.append(c.id)
+                                    hp += int(c.hp[:-1])
+                            else:
+                                hp += int(c.hp)
+        return hp
+                            
     
 
     def __str__(self):
@@ -134,8 +152,14 @@ def read_json_courses(mycourses):
             print("Something went wrong reading line "+ line)
     return calendar
 
+def clear_terminal():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
 def remove_courses(calendar, mycourses, course_lookup):
     while True:
+        clear_terminal()
+        print(calendar)
+        print("HP valda: " + str(calendar.total_hp()))
         print("Skriv kurskod för att ta bort kurser, svara q när du är klar")
         c_id = input("Kurskod? ").upper()
         if(c_id == "Q"):
@@ -153,7 +177,10 @@ def remove_courses(calendar, mycourses, course_lookup):
 
 def add_courses(calendar, mycourses, course_lookup):
     while True:
-        print("Skriv kurskod, svara q när du är klar")
+        clear_terminal()
+        print(calendar)
+        print("HP valda: " + str(calendar.total_hp()))
+        print("Skriv kurskod för att lägga till kurser, svara q när du är klar")
         c_id = input("Kurskod? ").upper()
         if(c_id == "Q"):
             break
@@ -204,11 +231,11 @@ def main():
 
     calendar = read_json_courses(mycourses)
 
-    print(calendar)
     add_courses(calendar, mycourses, course_lookup)
-    print(calendar)
     remove_courses(calendar, mycourses, course_lookup)
+    clear_terminal()
     print(calendar)
+    print("HP valda: " + str(calendar.total_hp()))
     f = open("kurser.txt", "w")
     f.write(str(calendar))
     f.close()
