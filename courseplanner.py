@@ -148,6 +148,8 @@ def remove_courses(calendar, mycourses, course_lookup):
                 if y.startswith("y"):
                     mycourses.remove(c)
                     calendar.remove_course(c)
+        else:
+            print("Kunde inte hitta kursen")
 
 def add_courses(calendar, mycourses, course_lookup):
     while True:
@@ -163,6 +165,8 @@ def add_courses(calendar, mycourses, course_lookup):
                 if y.startswith("y"):
                     mycourses.append(c)
                     calendar.plan_course(c)
+        else:
+            print("Kunde inte hitta kursen")
 
 def yes_no(message):
     answer = input(message + " [y/n]")
@@ -170,7 +174,8 @@ def yes_no(message):
         return True
     return False
 
-def get_webdata(html):
+def get_webdata():
+    html = ""
     if yes_no("Uppdatera tillgängliga kurser via internet?"):
         f = open("courses.html", "w")
         url = "https://liu.se/studieinfo/program/6cddd/3695"
@@ -183,15 +188,14 @@ def get_webdata(html):
             html = f.read()
         except FileNotFoundError:
             print("Du behöver hämta kurser från internet")
-            return 1
+            return ""
     f.close()
-    return 0
+    return html
 
 def main():
     html = ""
-    while get_webdata(html):
-        pass
-
+    while html == "":
+        html = get_webdata()
     soup = BeautifulSoup(html, "html.parser")
     mycourses = []
     course_lookup = {}
