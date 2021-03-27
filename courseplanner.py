@@ -170,8 +170,7 @@ def yes_no(message):
         return True
     return False
 
-def main():
-    html = ""
+def get_webdata(html):
     if yes_no("Uppdatera tillgängliga kurser via internet?"):
         f = open("courses.html", "w")
         url = "https://liu.se/studieinfo/program/6cddd/3695"
@@ -179,10 +178,20 @@ def main():
         html = page.read().decode("utf-8")
         f.write(html)
     else:
-        f = open("courses.html")
-        html = f.read()
-
+        try:
+            f = open("courses.html")
+            html = f.read()
+        except FileNotFoundError:
+            print("Du behöver hämta kurser från internet")
+            return 1
     f.close()
+    return 0
+
+def main():
+    html = ""
+    while get_webdata(html):
+        pass
+
     soup = BeautifulSoup(html, "html.parser")
     mycourses = []
     course_lookup = {}
